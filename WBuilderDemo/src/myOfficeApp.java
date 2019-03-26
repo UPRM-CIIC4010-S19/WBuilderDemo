@@ -21,7 +21,10 @@ import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JTextField;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.awt.event.ActionEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
 
 public class myOfficeApp {
 
@@ -30,6 +33,16 @@ public class myOfficeApp {
 	private JTextField txtSubtotal;
 	private JTextField txtTaxes;
 	private JTextField txtTotal;
+	private double dailyRate, subTotal, taxes, total ;
+	private static final double TAX_RATE = 0.115; // 11.5%
+	private static final double REG_RATE = 79.99;
+	private static final double STD_RATE = 59.99;
+	private static final double SPN_RATE = 49.99;
+	private static final double WIFI_RATE = 5.99;
+	private static final double ROOM_RATE = 12.99;
+	private static final double FOOD_RATE = 19.99;
+	NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+	
 
 	/**
 	 * Launch the application.
@@ -92,11 +105,18 @@ public class myOfficeApp {
 		JPanel buttonPanel = new JPanel();
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 		
-		JButton btnCalculate = new JButton("Calculate");
-		buttonPanel.add(btnCalculate);
+//		JButton btnCalculate = new JButton("Calculate");
+//		btnCalculate.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				//Daily Rate
+//				if (rdbtnRegular.isSelected())
+//				
+//				
+//			}
+//		});
+//		buttonPanel.add(btnCalculate);
 		
-		JButton btnClear = new JButton("Clear");
-		buttonPanel.add(btnClear);
+
 		
 		JButton btnExit = new JButton("Exit");
 		btnExit.addActionListener(new ActionListener() {
@@ -116,6 +136,11 @@ public class myOfficeApp {
 		membershipPanel.setLayout(new BoxLayout(membershipPanel, BoxLayout.Y_AXIS));
 		
 		JRadioButton rdbtnRegular = new JRadioButton("Regular");
+		rdbtnRegular.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent e) {
+				System.out.println("Radio Button Reg. Changed");
+			}
+		});
 		buttonGroup.add(rdbtnRegular);
 		membershipPanel.add(rdbtnRegular);
 		
@@ -180,6 +205,53 @@ public class myOfficeApp {
 		txtTotal.setEditable(false);
 		resultsPanel.add(txtTotal);
 		txtTotal.setColumns(10);
+		
+		JButton btnCalculate = new JButton("Calculate");
+		btnCalculate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Daily Rate
+				if (rdbtnRegular.isSelected()) dailyRate = REG_RATE;
+				if (rdbtnStudent.isSelected()) dailyRate = STD_RATE;
+				if (rdbtnSponsored.isSelected()) dailyRate = SPN_RATE;
+				
+				//Options
+				if (chckbxWifi.isSelected()) dailyRate += WIFI_RATE;
+				if (chckbxRoom.isSelected()) dailyRate += ROOM_RATE;
+				if (chckbxFood.isSelected()) dailyRate += FOOD_RATE;
+				
+				//Calculate cost
+				subTotal = dailyRate * 
+						Integer.parseInt(comboBox.getSelectedItem().toString());
+				taxes = subTotal * TAX_RATE;
+				total = taxes + subTotal;
+				
+				//Display Results
+				txtSubtotal.setText(String.format("%,.2f", subTotal));
+				txtTaxes.setText(currencyFormat.format(taxes));
+				txtTotal.setText(currencyFormat.format(total));
+				
+				
+
+				
+			}
+		});
+		buttonPanel.add(btnCalculate);
+		
+		JButton btnClear = new JButton("Clear");
+		btnClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				rdbtnRegular.setSelected(true);
+				chckbxWifi.setSelected(false);
+				chckbxRoom.setSelected(false);
+				chckbxFood.setSelected(false);
+				comboBox.setSelectedIndex(0);
+				txtSubtotal.setText(null);
+				txtTaxes.setText(null);
+				txtTotal.setText(null);
+				
+			}
+		});
+		buttonPanel.add(btnClear);
 	}
 
 }
