@@ -30,9 +30,7 @@ public class myOfficeApp {
 
 	private JFrame frame;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JTextField txtSubtotal;
-	private JTextField txtTaxes;
-	private JTextField txtTotal;
+	private JTextField txtSubtotal, txtTaxes, txtTotal;
 	private double dailyRate, subTotal, taxes, total ;
 	private static final double TAX_RATE = 0.115; // 11.5%
 	private static final double REG_RATE = 79.99;
@@ -41,7 +39,14 @@ public class myOfficeApp {
 	private static final double WIFI_RATE = 5.99;
 	private static final double ROOM_RATE = 12.99;
 	private static final double FOOD_RATE = 19.99;
+	private static final Integer[] DAYOPTIONS_INTEGERS = new Integer[]{6, 12,18,24,36};
 	NumberFormat currencyFormat = NumberFormat.getCurrencyInstance();
+	private JLabel lblTitle;
+	private JButton btnExit, btnCalculate,btnClear;
+	private JRadioButton rdbtnRegular, rdbtnStudent, rdbtnSponsored;
+	private JCheckBox chckbxWifi, chckbxRoom, chckbxFood;
+	private JComboBox<Integer> comboBox;
+	private JMenuItem mntmAbout, mntmQuit, mntmFaqs, mntmSearch;
 	
 
 	/**
@@ -81,22 +86,22 @@ public class myOfficeApp {
 		JMenu mnMyoffice = new JMenu("myOffice");
 		menuBar.add(mnMyoffice);
 		
-		JMenuItem mntmAbout = new JMenuItem("About myOffice");
+		mntmAbout = new JMenuItem("About myOffice");
 		mnMyoffice.add(mntmAbout);
 		
-		JMenuItem mntmQuit = new JMenuItem(" Quit myOffice");
+		mntmQuit = new JMenuItem(" Quit myOffice");
 		mnMyoffice.add(mntmQuit);
 		
 		JMenu mnHelp = new JMenu("Help");
 		menuBar.add(mnHelp);
 		
-		JMenuItem mntmFaqs = new JMenuItem("FAQs");
+		mntmFaqs = new JMenuItem("FAQs");
 		mnHelp.add(mntmFaqs);
 		
-		JMenuItem mntmSearch = new JMenuItem("Search");
+		mntmSearch = new JMenuItem("Search");
 		mnHelp.add(mntmSearch);
 		
-		JLabel lblTitle = new JLabel("myOffice Reservation App");
+		lblTitle = new JLabel("myOffice Reservation App");
 		lblTitle.setFont(new Font("Verdana", Font.BOLD | Font.ITALIC, 20));
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitle.setForeground(Color.BLUE);
@@ -104,27 +109,6 @@ public class myOfficeApp {
 		
 		JPanel buttonPanel = new JPanel();
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-		
-//		JButton btnCalculate = new JButton("Calculate");
-//		btnCalculate.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				//Daily Rate
-//				if (rdbtnRegular.isSelected())
-//				
-//				
-//			}
-//		});
-//		buttonPanel.add(btnCalculate);
-		
-
-		
-		JButton btnExit = new JButton("Exit");
-		btnExit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-		buttonPanel.add(btnExit);
 		
 		JPanel mainPanel = new JPanel();
 		frame.getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -135,7 +119,7 @@ public class myOfficeApp {
 		mainPanel.add(membershipPanel);
 		membershipPanel.setLayout(new BoxLayout(membershipPanel, BoxLayout.Y_AXIS));
 		
-		JRadioButton rdbtnRegular = new JRadioButton("Regular");
+		rdbtnRegular = new JRadioButton("Regular");
 		rdbtnRegular.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				System.out.println("Radio Button Reg. Changed");
@@ -144,11 +128,11 @@ public class myOfficeApp {
 		buttonGroup.add(rdbtnRegular);
 		membershipPanel.add(rdbtnRegular);
 		
-		JRadioButton rdbtnStudent = new JRadioButton("Student");
+		rdbtnStudent = new JRadioButton("Student");
 		buttonGroup.add(rdbtnStudent);
 		membershipPanel.add(rdbtnStudent);
 		
-		JRadioButton rdbtnSponsored = new JRadioButton("Sponsored");
+		rdbtnSponsored = new JRadioButton("Sponsored");
 		buttonGroup.add(rdbtnSponsored);
 		membershipPanel.add(rdbtnSponsored);
 		
@@ -157,21 +141,21 @@ public class myOfficeApp {
 		mainPanel.add(optionsPanel);
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
 		
-		JCheckBox chckbxWifi = new JCheckBox("Wi-Fi");
+		chckbxWifi = new JCheckBox("Wi-Fi");
 		optionsPanel.add(chckbxWifi);
 		
-		JCheckBox chckbxRoom = new JCheckBox("Conference Room");
+		chckbxRoom = new JCheckBox("Conference Room");
 		optionsPanel.add(chckbxRoom);
 		
-		JCheckBox chckbxFood = new JCheckBox("Coffee & Snacks");
+		chckbxFood = new JCheckBox("Coffee & Snacks");
 		optionsPanel.add(chckbxFood);
 		
 		JPanel daysPanel = new JPanel();
 		daysPanel.setBorder(new TitledBorder(null, "Service (36 days max.)", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		mainPanel.add(daysPanel);
 		
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"6", "12", "18", "24", "36"}));
+		comboBox = new JComboBox<Integer>();
+		comboBox.setModel(new DefaultComboBoxModel<Integer>(DAYOPTIONS_INTEGERS));
 		daysPanel.add(comboBox);
 		
 		JPanel resultsPanel = new JPanel();
@@ -206,7 +190,7 @@ public class myOfficeApp {
 		resultsPanel.add(txtTotal);
 		txtTotal.setColumns(10);
 		
-		JButton btnCalculate = new JButton("Calculate");
+		btnCalculate = new JButton("Calculate");
 		btnCalculate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//Daily Rate
@@ -220,8 +204,8 @@ public class myOfficeApp {
 				if (chckbxFood.isSelected()) dailyRate += FOOD_RATE;
 				
 				//Calculate cost
-				subTotal = dailyRate * 
-						Integer.parseInt(comboBox.getSelectedItem().toString());
+				subTotal = dailyRate * (int)comboBox.getSelectedItem();
+						//Integer.parseInt(comboBox.getSelectedItem().toString());
 				taxes = subTotal * TAX_RATE;
 				total = taxes + subTotal;
 				
@@ -229,15 +213,13 @@ public class myOfficeApp {
 				txtSubtotal.setText(String.format("%,.2f", subTotal));
 				txtTaxes.setText(currencyFormat.format(taxes));
 				txtTotal.setText(currencyFormat.format(total));
-				
-				
-
-				
 			}
 		});
 		buttonPanel.add(btnCalculate);
-		
-		JButton btnClear = new JButton("Clear");
+
+ 		
+		// CLEAR BUTTON
+		btnClear = new JButton("Clear");
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				rdbtnRegular.setSelected(true);
@@ -252,6 +234,16 @@ public class myOfficeApp {
 			}
 		});
 		buttonPanel.add(btnClear);
+		
+		
+		// EXIT BUTTON
+		btnExit = new JButton("Exit");
+		btnExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		buttonPanel.add(btnExit);
 	}
 
 }
