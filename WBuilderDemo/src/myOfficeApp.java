@@ -1,32 +1,32 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JLabel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import javax.swing.SwingConstants;
+import java.awt.EventQueue;
 import java.awt.Font;
-import javax.swing.JPanel;
-import javax.swing.JButton;
 import java.awt.GridLayout;
-import javax.swing.border.TitledBorder;
-import javax.swing.JRadioButton;
-import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
-import javax.swing.ButtonGroup;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JTextField;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
-import java.awt.event.ActionEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.ChangeEvent;
 
-public class myOfficeApp {
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+
+public class myOfficeApp implements ActionListener{
 
 	private JFrame frame;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
@@ -101,7 +101,7 @@ public class myOfficeApp {
 		mntmSearch = new JMenuItem("Search");
 		mnHelp.add(mntmSearch);
 		
-		lblTitle = new JLabel("myOffice Reservation App");
+		lblTitle = new JLabel("Office Reservation App");
 		lblTitle.setFont(new Font("Verdana", Font.BOLD | Font.ITALIC, 20));
 		lblTitle.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTitle.setForeground(Color.BLUE);
@@ -119,44 +119,81 @@ public class myOfficeApp {
 		mainPanel.add(membershipPanel);
 		membershipPanel.setLayout(new BoxLayout(membershipPanel, BoxLayout.Y_AXIS));
 		
+		// RADIO BUTTONS
 		rdbtnRegular = new JRadioButton("Regular");
-		rdbtnRegular.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				System.out.println("Radio Button Reg. Changed");
-			}
-		});
+		rdbtnRegular.setSelected(true);
+		rdbtnRegular.addActionListener(this); // Handled by this class -- EXAMPLE # 1
 		buttonGroup.add(rdbtnRegular);
 		membershipPanel.add(rdbtnRegular);
 		
 		rdbtnStudent = new JRadioButton("Student");
+		HandlerHelper helper = new HandlerHelper(); // Instance of Private Inner class -- EXAMPLE # 2
+		rdbtnStudent.addChangeListener(helper); // Object "helper" is event listener
 		buttonGroup.add(rdbtnStudent);
 		membershipPanel.add(rdbtnStudent);
 		
 		rdbtnSponsored = new JRadioButton("Sponsored");
+		rdbtnSponsored.addActionListener(new ActionListener() { // Anonymous Inner Class -- EXAMPLE #3
+			public void actionPerformed(ActionEvent e) {
+				calculateButtonActionPerformed(e);  // Implements actionPerformed by calling a method
+			}                                       // (near the end of the file)
+		});
 		buttonGroup.add(rdbtnSponsored);
-		membershipPanel.add(rdbtnSponsored);
+		membershipPanel.add(rdbtnSponsored); 
+		
+		
+		JPanel daysPanel = new JPanel();
+		daysPanel.setBorder(new TitledBorder(null, "Service (36 days max.)",
+				TitledBorder.LEADING, TitledBorder.TOP, null, null));
+		mainPanel.add(daysPanel);
+		
+		// COMBO BOX 
+		comboBox = new JComboBox<Integer>();
+		comboBox.addActionListener(new ActionListener() { // Anonymous Inner Class -- EXAMPLE #4
+			public void actionPerformed(ActionEvent e) {  // Implements actionPerformed by embedding code
+				                                          // NOTE: Calculate Button uses this same approach
+				//Daily Rate
+				if (rdbtnRegular.isSelected()) dailyRate = REG_RATE;
+				if (rdbtnStudent.isSelected()) dailyRate = STD_RATE;
+				if (rdbtnSponsored.isSelected()) dailyRate = SPN_RATE;
+				
+				//Options
+				if (chckbxWifi.isSelected()) dailyRate += WIFI_RATE;
+				if (chckbxRoom.isSelected()) dailyRate += ROOM_RATE;
+				if (chckbxFood.isSelected()) dailyRate += FOOD_RATE;
+				
+				//Calculate cost
+				subTotal = dailyRate * (int)comboBox.getSelectedItem();
+				taxes = subTotal * TAX_RATE;
+				total = taxes + subTotal;
+				
+				//Display Results
+				txtSubtotal.setText(String.format("%,.2f", subTotal));
+				txtTaxes.setText(currencyFormat.format(taxes));
+				txtTotal.setText(currencyFormat.format(total));
+			}
+		});
+		comboBox.setModel(new DefaultComboBoxModel<Integer>(DAYOPTIONS_INTEGERS));
+		daysPanel.add(comboBox);
 		
 		JPanel optionsPanel = new JPanel();
 		optionsPanel.setBorder(new TitledBorder(null, "Options", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 		mainPanel.add(optionsPanel);
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
 		
+		// CHECK BOXES
+		                                       // REUSE existing handlers -- Example #5
 		chckbxWifi = new JCheckBox("Wi-Fi");
+		chckbxWifi.addChangeListener(helper);  // Reuse ChangeListener created for rdbtnStudent
 		optionsPanel.add(chckbxWifi);
 		
 		chckbxRoom = new JCheckBox("Conference Room");
+		chckbxRoom.addChangeListener(helper);  // Reuse ChangeListener created for rdbtnStudent
 		optionsPanel.add(chckbxRoom);
 		
 		chckbxFood = new JCheckBox("Coffee & Snacks");
+		chckbxFood.addChangeListener(helper);  // Reuse ChangeListener created for rdbtnStudent
 		optionsPanel.add(chckbxFood);
-		
-		JPanel daysPanel = new JPanel();
-		daysPanel.setBorder(new TitledBorder(null, "Service (36 days max.)", TitledBorder.LEADING, TitledBorder.TOP, null, null));
-		mainPanel.add(daysPanel);
-		
-		comboBox = new JComboBox<Integer>();
-		comboBox.setModel(new DefaultComboBoxModel<Integer>(DAYOPTIONS_INTEGERS));
-		daysPanel.add(comboBox);
 		
 		JPanel resultsPanel = new JPanel();
 		resultsPanel.setBorder(new TitledBorder(null, "Charges", TitledBorder.LEADING, TitledBorder.TOP, null, null));
@@ -190,6 +227,7 @@ public class myOfficeApp {
 		resultsPanel.add(txtTotal);
 		txtTotal.setColumns(10);
 		
+		// CALCULATE BUTTON
 		btnCalculate = new JButton("Calculate");
 		btnCalculate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -244,6 +282,66 @@ public class myOfficeApp {
 			}
 		});
 		buttonPanel.add(btnExit);
+	}
+
+	// ActionPerformed Method managed by myOfficeApp (this Class)
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		calculateButtonActionPerformed(e);
+	}
+
+	private void calculateButtonActionPerformed(ActionEvent e) {
+		//Daily Rate
+		if (rdbtnRegular.isSelected()) dailyRate = REG_RATE;
+		if (rdbtnStudent.isSelected()) dailyRate = STD_RATE;
+		if (rdbtnSponsored.isSelected()) dailyRate = SPN_RATE;
+		
+		//Options
+		if (chckbxWifi.isSelected()) dailyRate += WIFI_RATE;
+		if (chckbxRoom.isSelected()) dailyRate += ROOM_RATE;
+		if (chckbxFood.isSelected()) dailyRate += FOOD_RATE;
+		
+		//Calculate cost
+		subTotal = dailyRate * (int)comboBox.getSelectedItem();
+		taxes = subTotal * TAX_RATE;
+		total = taxes + subTotal;
+		
+		//Display Results
+		txtSubtotal.setText(String.format("%,.2f", subTotal));
+		txtTaxes.setText(currencyFormat.format(taxes));
+		txtTotal.setText(currencyFormat.format(total));
+	}
+	
+	private class HandlerHelper implements ChangeListener{
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			calculateButtonStateChanged(e);
+			
+		}
+
+		private void calculateButtonStateChanged(ChangeEvent e) {
+			//Daily Rate
+			if (rdbtnRegular.isSelected()) dailyRate = REG_RATE;
+			if (rdbtnStudent.isSelected()) dailyRate = STD_RATE;
+			if (rdbtnSponsored.isSelected()) dailyRate = SPN_RATE;
+			
+			//Options
+			if (chckbxWifi.isSelected()) dailyRate += WIFI_RATE;
+			if (chckbxRoom.isSelected()) dailyRate += ROOM_RATE;
+			if (chckbxFood.isSelected()) dailyRate += FOOD_RATE;
+			
+			//Calculate cost
+			subTotal = dailyRate * (int)comboBox.getSelectedItem();
+			taxes = subTotal * TAX_RATE;
+			total = taxes + subTotal;
+			
+			//Display Results
+			txtSubtotal.setText(String.format("%,.2f", subTotal));
+			txtTaxes.setText(currencyFormat.format(taxes));
+			txtTotal.setText(currencyFormat.format(total));
+		}
+		
 	}
 
 }
